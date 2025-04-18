@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hola</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Variables CSS para colores */
+        :root {
+            --background-color: #f0ede4; /* Off-white/Bone */
+            --text-color: #333;
+            --container-bg-color: #ffffff;
+            --button-bg-color: #a8a39d;
+            --button-hover-bg-color: #8e8a85;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --toggle-icon-color: #333;
+
+            /* Colores para el calendario */
+            --calendar-bg: #ffffff;
+            --calendar-text: #333;
+            --calendar-border: #ccc;
+            --selected-day-bg: #a8a39d; /* Color del botón */
+            --selected-day-text: #fff;
+            --range-day-bg: #d4d0cb; /* Variante del color del botón */
+            --range-day-text: #333;
+            --day-hover-bg: #e0e0e0;
+            --select-bg: #ffffff;
+            --select-border: #ccc;
+            --select-text: #333;
+        }
+
+        /* Tema oscuro */
+        body.dark-mode {
+            --background-color: #1e2a38; /* Dark blue/gray */
+            --text-color: #e0e0e0; /* Light gray */
+            --container-bg-color: #2b3b4c; /* Slightly lighter dark blue/gray */
+            --button-bg-color: #5a6b7d; /* Muted blue */
+            --button-hover-bg-color: #6c7d8f;
+            --shadow-color: rgba(255, 255, 255, 0.1);
+            --toggle-icon-color: #e0e0e0;
+
+            /* Colores para el calendario en tema oscuro */
+            --calendar-bg: #2b3b4c;
+            --calendar-text: #e0e0e0;
+            --calendar-border: #5a6b7d;
+            --selected-day-bg: #5a6b7d; /* Color del botón oscuro */
+            --selected-day-text: #fff;
+            --range-day-bg: #3a4c5f; /* Variante del color del botón oscuro */
+            --range-day-text: #e0e0e0;
+            --day-hover-bg: #3a4c5f;
+            --select-bg: #3a4c5f;
+            --select-border: #5a6b7d;
+            --select-text: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease; /* Transición suave */
+            position: relative; /* Necesario para posicionar el modal */
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px; /* Aumentar padding */
+            background-color: var(--container-bg-color);
+            border-radius: 10px;
+            box-shadow: 0 8px 16px var(--shadow-color); /* Sombra más pronunciada */
+            transition: background-color 0.5s ease, box-shadow 0.5s ease; /* Transición suave */
+            z-index: 1; /* Asegura que esté sobre el fondo */
+        }
+
+        .logo {
+            font-size: 2.8em; /* Aumentar tamaño del logo */
+            font-weight: 600;
+            margin-bottom: 25px; /* Ajustar margen */
+        }
+
+        .info {
+            font-size: 1.1em; /* Ajustar tamaño de info */
+            margin-bottom: 35px; /* Ajustar margen */
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6; /* Mejorar legibilidad */
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .button {
+            padding: 12px 25px; /* Aumentar padding del botón */
+            font-size: 1em;
+            text-decoration: none;
+            color: #fff; /* Texto del botón siempre blanco para contraste */
+            background-color: var(--button-bg-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transición y efecto al pasar el ratón */
+        }
+
+        .button:hover {
+            background-color: var(--button-hover-bg-color);
+            transform: translateY(-2px); /* Efecto sutil al pasar el ratón */
+        }
+
+        /* Estilos para el toggle de tema */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: var(--toggle-icon-color);
+            transition: color 0.5s ease;
+            z-index: 10; /* Asegura que esté sobre todo */
+        }
+
+        .theme-toggle i {
+            pointer-events: none; /* Asegura que el click sea en el div, no en el icono */
+        }
+
+        .theme-toggle .sun-icon {
+            display: none; /* Ocultar el sol por defecto (modo claro) */
+        }
+
+        body.dark-mode .theme-toggle .moon-icon {
+            display: none; /* Ocultar la luna en modo oscuro */
+        }
+
+        body.dark-mode .theme-toggle .sun-icon {
+            display: inline-block; /* Mostrar el sol en modo oscuro */
+        }
+
+        /* Estilos para el Modal del Calendario */
+        .calendar-modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 5; /* Sobre el contenido principal, bajo el toggle */
+        }
+
+        .calendar-content {
+            background-color: var(--calendar-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px var(--shadow-color);
+            text-align: center;
+            color: var(--calendar-text);
+            transition: background-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+            position: relative; /* Para posicionar el botón de cerrar */
+        }
+
+        .calendar-header {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .calendar-controls {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .calendar-controls select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--select-border);
+            background-color: var(--select-bg);
+            color: var(--select-text);
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+         .calendar-controls select:focus {
+             outline: none;
+             border-color: var(--button-bg-color); /* Resaltar al enfocar */
+         }
+
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 40px); /* 7 días, 40px de ancho */
+            gap: 5px; /* Espacio entre días */
+            justify-content: center;
+        }
+
+        .day-label {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%; /* Bordes circulares */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+        }
+
+        .day:hover:not(.empty):not(.selected-start):not(.selected-end):not(.in-range) {
+             background-color: var(--day-hover-bg);
+             transform: scale(1.1); /* Agrandar número/botón */
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra al pasar el ratón */
+        }
+
+        .day.empty {
+            visibility: hidden; /* Ocultar días vacíos */
+        }
+
+        .day.selected-start,
+        .day.selected-end {
+            background-color: var(--selected-day-bg);
+            color: var(--selected-day-text);
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más oscura para seleccionados */
+        }
+
+        .day.in-range {
+            background-color: var(--range-day-bg);
+            color: var(--range-day-text);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra para el rango */
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-color); /* Color del texto principal */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon moon-icon"></i>
+        <i class="fas fa-sun sun-icon"></i>
+    </div>
+
+    <div class="container">
+        <div class="logo">Nicolas Coronel</div>
+        <div class="info">
+            <p>Building</p>
+        </div>
+        <div class="buttons">
+            <a href="/proyectos" class="button">projects</a>
+            <a href="https://nicodatacreator.github.io" class="button" target="_blank">Contact</a>
+            <button id="hire-button" class="button">Hire</button>
+        </div>
+    </div>
+
+    <div class="calendar-modal" id="calendar-modal">
+        <div class="calendar-content">
+            <span class="close-modal" id="close-calendar-modal">&times;</span>
+            <div class="calendar-header">Selecciona Fechas</div>
+
+            <div class="calendar-controls">
+                <select id="year-select"></select>
+                <select id="month-select"></select>
+            </div>
+
+            <div class="calendar-grid">
+                </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Script para el toggle de tema
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Cargar el tema guardado en localStorage
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+
+            // Guardar la preferencia del tema en localStorage
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Script para el Modal del Calendario
+        const hireButton = document.getElementById('hire-button');
+        const calendarModal = document.getElementById('calendar-modal');
+        const closeCalendarModal = document.getElementById('close-calendar-modal');
+        const yearSelect = document.getElementById('year-select');
+        const monthSelect = document.getElementById('month-select');
+        const calendarGrid = document.querySelector('.calendar-grid');
+
+        let startDate = null;
+        let endDate = null;
+
+        // Obtener la fecha actual
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth(); // 0 para Enero, 11 para Diciembre
+
+        // Nombres de los meses en español
+        const monthNames = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+
+        // Nombres de los días de la semana en español (empezando por Lunes)
+        const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+
+        // Función para poblar los selectores de año y mes
+        function populateSelectors() {
+            // Poblar selector de año
+            yearSelect.innerHTML = ''; // Limpiar opciones existentes
+            yearSelect.add(new Option(currentYear, currentYear));
+            yearSelect.add(new Option(currentYear + 1, currentYear + 1));
+
+            // Poblar selector de mes basado en el año seleccionado
+            populateMonthSelect(parseInt(yearSelect.value));
+
+             // Seleccionar el mes actual por defecto si el año es el actual
+             if (parseInt(yearSelect.value) === currentYear) {
+                 monthSelect.value = currentMonth;
+             }
+        }
+
+        // Función para poblar el selector de mes basado en el año
+        function populateMonthSelect(year) {
+            monthSelect.innerHTML = ''; // Limpiar opciones existentes
+            let startMonth = 0;
+
+            // Si el año seleccionado es el actual, empezar desde el mes actual
+            if (year === currentYear) {
+                startMonth = currentMonth;
+            }
+
+            for (let i = startMonth; i < 12; i++) {
+                monthSelect.add(new Option(monthNames[i], i));
+            }
+        }
+
+        // Función para generar el calendario para un mes y año dados
+        function generateCalendar(year, month) {
+            calendarGrid.innerHTML = ''; // Limpiar la cuadrícula actual
+
+            // Añadir etiquetas de los días de la semana
+            dayNames.forEach(dayName => {
+                const labelDiv = document.createElement('div');
+                labelDiv.classList.add('day-label');
+                labelDiv.textContent = dayName;
+                calendarGrid.appendChild(labelDiv);
+            });
+
+            // Obtener el primer día del mes (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            // Ajustar para que Lunes sea el primer día (0)
+            const startDayIndex = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+
+            // Obtener el número de días en el mes
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Añadir divs vacíos para alinear el primer día de la semana
+            for (let i = 0; i < startDayIndex; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.classList.add('day', 'empty');
+                calendarGrid.appendChild(emptyDiv);
+            }
+
+            // Añadir divs para cada día del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('day');
+                dayDiv.dataset.day = day;
+                dayDiv.dataset.month = month; // Guardar mes y año en los data attributes
+                dayDiv.dataset.year = year;
+                dayDiv.textContent = day;
+                calendarGrid.appendChild(dayDiv);
+            }
+
+            // Re-adjuntar listeners a los nuevos días
+            attachDayEventListeners();
+            // Re-aplicar selección si existe
+            reapplySelection();
+        }
+
+        // Función para adjuntar listeners a los días del calendario
+        function attachDayEventListeners() {
+             const days = calendarGrid.querySelectorAll('.day:not(.empty)');
+             days.forEach(day => {
+                 day.addEventListener('click', handleDayClick);
+                 day.addEventListener('mouseover', handleDayMouseOver);
+                 day.addEventListener('mouseout', handleDayMouseOut);
+             });
+        }
+
+        // Handler para el click en un día
+        function handleDayClick(event) {
+            const dayDiv = event.target;
+            const day = parseInt(dayDiv.dataset.day);
+            const month = parseInt(dayDiv.dataset.month);
+            const year = parseInt(dayDiv.dataset.year);
+            const clickedDate = new Date(year, month, day);
+
+            if (startDate === null || (startDate !== null && endDate !== null)) {
+                // Si no hay fecha de inicio o ya hay un rango seleccionado, empezar uno nuevo
+                resetCalendarSelection();
+                startDate = clickedDate;
+                dayDiv.classList.add('selected-start');
+            } else if (clickedDate >= startDate) {
+                // Si ya hay fecha de inicio y la nueva es posterior o igual
+                endDate = clickedDate;
+                dayDiv.classList.add('selected-end');
+                highlightDateRange(startDate, endDate);
+            } else {
+                // Si la nueva fecha es anterior a la de inicio, empezar de nuevo
+                resetCalendarSelection();
+                startDate = clickedDate;
+                dayDiv.classList.add('selected-start');
+            }
+        }
+
+        // Handler para mouseover en un día
+        function handleDayMouseOver(event) {
+             const day = event.target;
+             if (!day.classList.contains('empty')) {
+                  day.style.transform = 'scale(1.1)';
+                  day.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+             }
+        }
+
+        // Handler para mouseout en un día
+        function handleDayMouseOut(event) {
+            const day = event.target;
+             if (!day.classList.contains('empty')) {
+                 day.style.transform = 'scale(1)';
+                 // Restaurar sombra original o quitarla si no estaba seleccionada/en rango
+                  if (!day.classList.contains('selected-start') && !day.classList.contains('selected-end') && !day.classList.contains('in-range')) {
+                     day.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                 } else if (day.classList.contains('selected-start') || day.classList.contains('selected-end')) {
+                     day.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                 } else if (day.classList.contains('in-range')) {
+                      day.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                 }
+             }
+        }
+
+        // Función para resaltar el rango de fechas (simplificado para el mes actual visible)
+        function highlightDateRange(start, end) {
+             const days = calendarGrid.querySelectorAll('.day:not(.empty)');
+             days.forEach(day => {
+                 const dayNumber = parseInt(day.dataset.day);
+                 const dayMonth = parseInt(day.dataset.month);
+                 const dayYear = parseInt(day.dataset.year);
+                 const currentDate = new Date(dayYear, dayMonth, dayNumber);
+
+                 // Resaltar solo si la fecha está entre start y end (inclusive)
+                 // Simplificado: solo resalta dentro del mes visible para esta ilustración
+                 if (currentDate > start && currentDate < end) {
+                     day.classList.add('in-range');
+                 }
+             });
+        }
+
+        // Función para resetear la selección del calendario
+        function resetCalendarSelection() {
+            startDate = null;
+            endDate = null;
+            const days = calendarGrid.querySelectorAll('.day');
+            days.forEach(day => {
+                day.classList.remove('selected-start', 'selected-end', 'in-range');
+                 // Asegurarse de que la sombra vuelva a la normalidad después de resetear
+                 if (!day.classList.contains('empty')) {
+                      day.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                 }
+            });
+        }
+
+        // Función para re-aplicar la selección al cambiar de mes/año
+        function reapplySelection() {
+            if (startDate) {
+                 const days = calendarGrid.querySelectorAll('.day:not(.empty)');
+                 days.forEach(day => {
+                     const dayNumber = parseInt(day.dataset.day);
+                     const dayMonth = parseInt(day.dataset.month);
+                     const dayYear = parseInt(day.dataset.year);
+                     const currentDate = new Date(dayYear, dayMonth, dayNumber);
+
+                     if (startDate && currentDate.toDateString() === startDate.toDateString()) {
+                         day.classList.add('selected-start');
+                     }
+                     if (endDate && currentDate.toDateString() === endDate.toDateString()) {
+                         day.classList.add('selected-end');
+                     }
+                     if (startDate && endDate && currentDate > startDate && currentDate < endDate) {
+                         day.classList.add('in-range');
+                     }
+                 });
+            }
+        }
+
+        // Event listeners para los selectores de año y mes
+        yearSelect.addEventListener('change', () => {
+            populateMonthSelect(parseInt(yearSelect.value));
+            // Al cambiar de año, resetear la selección y generar el calendario para el primer mes del nuevo rango
+            resetCalendarSelection();
+            generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+        });
+
+        monthSelect.addEventListener('change', () => {
+            // Al cambiar de mes, resetear la selección y generar el calendario
+            resetCalendarSelection();
+            generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+        });
+
+
+        // Inicializar selectores y calendario al cargar el modal (o al abrirlo)
+        // Mostrar el modal al hacer clic en el botón Contratar
+        hireButton.addEventListener('click', () => {
+            populateSelectors(); // Poblar selectores antes de mostrar
+            generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value)); // Generar calendario inicial
+            calendarModal.style.display = 'flex';
+        });
+
+        // Ocultar el modal al hacer clic en la X
+        closeCalendarModal.addEventListener('click', () => {
+            calendarModal.style.display = 'none';
+            resetCalendarSelection(); // Resetear selección al cerrar
+        });
+
+        // Ocultar el modal al hacer clic fuera del contenido del calendario
+        calendarModal.addEventListener('click', (event) => {
+            if (event.target === calendarModal) {
+                calendarModal.style.display = 'none';
+                resetCalendarSelection(); // Resetear selección al cerrar
+            }
+        });
+
+        // Inicializar selectores y calendario al cargar la página (opcional, se hace al abrir el modal ahora)
+        // populateSelectors();
+        // generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+
+
+    </script>
+
+</body>
+</html>
