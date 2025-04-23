@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,6 +78,11 @@
             box-shadow: 0 8px 16px var(--shadow-color); /* Sombra más pronunciada */
             transition: background-color 0.5s ease, box-shadow 0.5s ease; /* Transición suave */
             z-index: 1; /* Asegura que esté sobre el fondo */
+        }
+
+    .logo:hover .logo-text {
+            color: var(--button-bg-color); /* Change color on hover */
+            transition: color 0.3s ease; /* Smooth transition */
         }
 
         .logo {
@@ -306,7 +311,9 @@
             <span class="close-modal" id="close-calendar-modal">&times;</span>
             <div class="calendar-header">Date</div>
 
-            <div class="calendar-controls">
+<div class="calendar-controls">
+    <button id="prev-month" class="button">◀</button>
+    <button id="next-month" class="button">▶</button>
                 <select id="year-select"></select>
                 <select id="month-select"></select>
             </div>
@@ -591,6 +598,35 @@
                 calendarModal.style.display = 'none';
                 resetCalendarSelection(); // Resetear selección al cerrar
             }
+        });
+
+        // Event listeners for month navigation buttons
+        document.getElementById('prev-month').addEventListener('click', () => {
+            let currentMonth = parseInt(monthSelect.value);
+            let currentYear = parseInt(yearSelect.value);
+            if (currentMonth === 0) {
+                currentMonth = 11; // December
+                currentYear--; // Go to previous year
+            } else {
+                currentMonth--; // Go to previous month
+            }
+            yearSelect.value = currentYear;
+            monthSelect.value = currentMonth;
+            generateCalendar(currentYear, currentMonth);
+        });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            let currentMonth = parseInt(monthSelect.value);
+            let currentYear = parseInt(yearSelect.value);
+            if (currentMonth === 11) {
+                currentMonth = 0; // January
+                currentYear++; // Go to next year
+            } else {
+                currentMonth++; // Go to next month
+            }
+            yearSelect.value = currentYear;
+            monthSelect.value = currentMonth;
+            generateCalendar(currentYear, currentMonth);
         });
 
         // Inicializar selectores y calendario al cargar la página (opcional, se hace al abrir el modal ahora)
