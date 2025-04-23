@@ -257,6 +257,18 @@
             color: var(--text-color); /* Color del texto principal */
         }
 
+        .responsive-logo {
+            max-width: 40%;
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                display: flex;
+                flex-direction: column; /* Stack logo and text */
+                align-items: center; /* Center align */
+            }
+        }
     </style>
 </head>
 <body>
@@ -267,13 +279,24 @@
     </div>
 
     <div class="container">
-<div class="logo">Nicolas <img src="src/img/logo.png" alt="Logo" style="vertical-align: middle; margin-left: 10px;"></div>
+<div class="logo">
+    <span class="logo-text">Nicolas</span>
+    <img src="src/img/logo.png" alt="Logo" class="responsive-logo" style="display: none;">
+</div>
         <div class="info">
             <p>Building</p>
         </div>
         <div class="buttons">
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
             <a href="https://nicodatacreator.github.io" class="button">projects</a>
             <a href="https://nicodatacreator.github.io" class="button" target="_blank">Contact</a>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
+            <button id="submit-dates" class="button" style="display: none;">Submit Dates</button>
             <button id="hire-button" class="button">Hire</button>
         </div>
     </div>
@@ -373,7 +396,7 @@
             }
         }
 
-        // Función para generar el calendario para un mes y año dados
+        // Función para generar el calendario para un mes y año dados, permitiendo selección de rango
         function generateCalendar(year, month) {
             calendarGrid.innerHTML = ''; // Limpiar la cuadrícula actual
 
@@ -445,6 +468,7 @@
                 endDate = clickedDate;
                 dayDiv.classList.add('selected-end');
                 highlightDateRange(startDate, endDate);
+                document.getElementById('submit-dates').style.display = 'block'; // Show the submit button
             } else {
                 // Si la nueva fecha es anterior a la de inicio, empezar de nuevo
                 resetCalendarSelection();
